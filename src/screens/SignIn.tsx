@@ -11,6 +11,7 @@ export function SignIn() {
     function handleNewAccount(){
         navigation.navigate("signUp")
     }
+
     return (
         <ScrollView contentContainerStyle={{ flexGrow: 1}} showsVerticalScrollIndicator={false}>
             <VStack flex={1} px={10} pb={16}>
@@ -23,7 +24,7 @@ export function SignIn() {
                 />
                 <Center my={24}>
                     <LogoSVG />
-                    <Text color="gray.100"> Treine sua mente e o seu corpo</Text>
+                    <Text color="gray.100">O corpo alcança o que a mente acredita.</Text>
                 </Center>
                 <Center>
                     <Heading color="gray.100" fontSize="xl" mb={6} fontFamily="heading" >Acesse sua conta</Heading>
