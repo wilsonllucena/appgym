@@ -2,9 +2,9 @@ import { Heading, HStack, Image, Text, VStack, Icon } from "native-base";
 import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 import { Entypo } from "@expo/vector-icons"
 type Props = TouchableOpacityProps & {
-
+    name: string,
 }
-export function ExerciseCard({...rest}:Props){
+export function ExerciseCard({name, ...rest}:Props){
     return (
         <TouchableOpacity 
             {...rest}
@@ -24,7 +24,7 @@ export function ExerciseCard({...rest}:Props){
                         fontSize="lg"
                         color="white"
                     >
-                        Biceps com barra
+                        {name}
                     </Heading>
                     <Text
                         color="gray.200"
