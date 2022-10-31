@@ -5,12 +5,59 @@ import LogoSVG from "@assets/logo.svg";
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 import { AuthNavigatiorRoutesProps } from "@routes/auth.routes";
+import { useAuth } from "@hooks/auth";
+import { useCallback, useRef, useState } from "react";
+import * as Yup from 'yup';
+import { Alert } from "react-native";
 
 export function SignIn() {
+    const formRef = useRef<any>(null);
+    const [ email , setEmail] = useState("");
+    const [ password , setPassword] = useState("");
     const navigation = useNavigation<AuthNavigatiorRoutesProps>();
+    const { signIn } = useAuth();
+
     function handleNewAccount(){
         navigation.navigate("signUp")
     }
+
+    const handleSignIn = useCallback(
+        async () => {
+            // Validando
+            try {
+                formRef.current?.setErrors({});
+                const schema = Yup.object().shape({
+                    email: Yup.string()
+                        .required('E-mail obrigatório')
+                        .email('Email inválido'),
+                    password: Yup.string().required('Senha obrigatória'),
+                });
+                const data = {
+                    email: email,
+                    password: password,
+                }
+
+                await schema.validate(data, {
+                    abortEarly: false,
+                });
+
+                await signIn({
+                    email: data.email,
+                    password: data.password,
+                });
+            } catch (err) {
+                if (err instanceof Yup.ValidationError) {
+                    formRef.current?.setErrors(err);
+                    return;
+                }
+                Alert.alert(
+                    'Error na autenticação',
+                    'Ocorreu um error ao fazer login'
+                );
+            }
+        },
+        [signIn],
+    );
 
     return (
         <ScrollView contentContainerStyle={{ flexGrow: 1}} showsVerticalScrollIndicator={false}>
@@ -32,13 +79,17 @@ export function SignIn() {
                         placeholder="Usuário"
                         keyboardType="email-address"
                         autoCapitalize="none"
+                        onChangeText={ text => setEmail(text) }
+                        value={email}
                     />
                     <Input
                         placeholder="Senha"
                         secureTextEntry
+                        onChangeText={text => setPassword(text)}
+                        value={password}
 
                     />
-                    <Button title="Acessar" />
+                    <Button title="Acessar" onPress={() => handleSignIn()} />
                 </Center>
                 <Center mt={24}>
                     <Text
