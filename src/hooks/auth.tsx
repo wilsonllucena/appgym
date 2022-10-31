@@ -55,8 +55,6 @@ export const AuthProvider: React.FC<AuthProps> = ({ children }) => {
         });
 
         const { token, user } = response.data;
-
-        console.log("logado com sucesso: ", user);
         await AsyncStorage.multiSet(
             [
                 ['@AppGYM:token', token],
