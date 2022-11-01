@@ -48,7 +48,6 @@ export const AuthProvider: React.FC<AuthProps> = ({ children }) => {
     }, [])
 
     const signIn = useCallback(async ({ email, password }: SignInCredesentials) => {
-        console.log(email, password)
         const response = await api.post('auth/login', {
             email,
             password,
