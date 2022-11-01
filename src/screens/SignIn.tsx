@@ -7,13 +7,21 @@ import { Button } from "@components/Button";
 import { AuthNavigatiorRoutesProps } from "@routes/auth.routes";
 import { useAuth } from "@hooks/auth";
 import { useCallback, useRef, useState } from "react";
-import * as Yup from 'yup';
+import * as yup from 'yup';
 import { Alert } from "react-native";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+type FormDataProps = {
+    email: string;
+    password: string;
+}
+const signInSchema = yup.object({
+    email: yup.string().required('Informe o e-mail').email('E-mail inválido.'),
+    password: yup.string().required('Informe a senha').min(6, 'A senha deve ter pelo menos 6 dígitos.'),
+});
 
 export function SignIn() {
-    const formRef = useRef<any>(null);
-    const [ email , setEmail] = useState("");
-    const [ password , setPassword] = useState("");
     const navigation = useNavigation<AuthNavigatiorRoutesProps>();
     const { signIn } = useAuth();
 
@@ -21,35 +29,18 @@ export function SignIn() {
         navigation.navigate("signUp")
     }
 
+    const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
+        resolver: yupResolver(signInSchema),
+    });
+
     const handleSignIn = useCallback(
-        async () => {
-            // Validando
+        async({  email, password }: FormDataProps) => {
             try {
-                formRef.current?.setErrors({});
-                const schema = Yup.object().shape({
-                    email: Yup.string()
-                        .required('E-mail obrigatório')
-                        .email('Email inválido'),
-                    password: Yup.string().required('Senha obrigatória'),
-                });
-                const data = {
-                    email: email,
-                    password: password,
-                }
-
-                await schema.validate(data, {
-                    abortEarly: false,
-                });
-
                 await signIn({
-                    email: data.email,
-                    password: data.password,
+                    email,
+                    password
                 });
             } catch (err) {
-                if (err instanceof Yup.ValidationError) {
-                    formRef.current?.setErrors(err);
-                    return;
-                }
                 Alert.alert(
                     'Error na autenticação',
                     'Ocorreu um error ao fazer login'
@@ -75,21 +66,36 @@ export function SignIn() {
                 </Center>
                 <Center>
                     <Heading color="gray.100" fontSize="xl" mb={6} fontFamily="heading" >Acesse sua conta</Heading>
-                    <Input
-                        placeholder="Usuário"
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        onChangeText={ text => setEmail(text) }
-                        value={email}
-                    />
-                    <Input
-                        placeholder="Senha"
-                        secureTextEntry
-                        onChangeText={text => setPassword(text)}
-                        value={password}
 
+                    <Controller
+                        control={control}
+                        name="email"
+                        render={({ field: { onChange, value } }) => (
+                            <Input
+                                placeholder="E-mail"
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                                onChangeText={onChange}
+                                value={value}
+                                errorMessage={errors.email?.message}
+                            />
+                        )}
                     />
-                    <Button title="Acessar" onPress={() => handleSignIn()} />
+
+                    <Controller
+                        control={control}
+                        name="password"
+                        render={({ field: { onChange, value } }) => (
+                            <Input
+                                placeholder="Senha"
+                                secureTextEntry
+                                onChangeText={onChange}
+                                value={value}
+                                errorMessage={errors.password?.message}
+                            />
+                        )}
+                    />
+                    <Button title="Acessar" onPress={handleSubmit(handleSignIn)} />
                 </Center>
                 <Center mt={24}>
                     <Text

@@ -9,6 +9,7 @@ import BackgroundImg from '@assets/background.png';
 
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
+import api from "@services/api";
 
 type FormDataProps = {
     name: string;
@@ -36,8 +37,17 @@ export function SignUp() {
         navigation.goBack();
     }
 
-    function handleSignUp({ name, email, password, password_confirm }: FormDataProps) {
-        console.log({ name, email, password, password_confirm })
+   async function handleSignUp({ name, email, password, password_confirm }: FormDataProps) {
+        try {
+            await api.post("/users", {
+                name,
+                email,
+                document: "65756787687688",
+                password,
+            })
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     return (
